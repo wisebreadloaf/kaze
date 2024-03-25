@@ -1,0 +1,4 @@
+/videoprocessing
+/data
+/__pycache__/
+/checkpoint.pt
