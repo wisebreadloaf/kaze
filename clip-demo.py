@@ -1,7 +1,6 @@
 import torch
 import model_loader
 from transformers import CLIPTokenizer
-import torch.nn as nn
 
 DEVICE = "cuda"
 models = model_loader.preload_models_from_standard_weights(DEVICE)

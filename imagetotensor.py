@@ -38,9 +38,3 @@ image_tensor = image_tensor.permute(0, 3, 1, 2)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 image_tensor = image_tensor.to(device)
 print(image_tensor.shape)
-# encoder = models["encoder"].to(device)
-# with torch.no_grad():
-#     latents = encoder(image_tensor)
-#
-# print(latents)
-# print(latents.shape)
