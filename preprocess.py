@@ -5,6 +5,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import torch.nn as nn
 from mpl_toolkits.axes_grid1 import ImageGrid
+from autoencoder.convautoencoder import ConvAutoencoder
 
 
 class patchify(nn.Module):
@@ -30,14 +31,20 @@ def plot_patches(tensor):
     plt.show()
 
 
+model = ConvAutoencoder()
+model.load_state_dict(torch.load("./autoencoder/models/conv-auto-encoder.pth"))
 checkpoint_path = "checkpoint.pt"
+
 if not os.path.exists(checkpoint_path):
     res = None
 else:
     res = torch.load(checkpoint_path)
 
-for i in range(408, 984):
-    image_path = os.path.join("./videoprocessing/images/", f"frame_{i:05d}.jpg")
+count = 0
+for i in range(460, 652):
+    image_path = os.path.join(
+        "./videoprocessing/images/", f"Arrietty_frame_{i:08d}.jpg"
+    )
     print("processing", image_path)
     input_image = Image.open(image_path)
     width = 512
@@ -53,42 +60,15 @@ for i in range(408, 984):
     patch = patchify(patch_size=patch_size)
     patches = patch(input_image_tensor)
     patches = patches.squeeze()
-    if i == 408:
-        res = patches
+    encoded, decoded = model(patches)
+    if count == 0:
+        res = encoded.unsqueeze(0)
+        count += 1
     else:
-        res = torch.cat((res, patches), dim=0)
+        res = torch.cat((res, encoded.unsqueeze(0)), dim=0)
+        print(encoded.shape)
         print(res.shape)
-    torch.save(res, checkpoint_path)
-# res = res.reshape(x.shape)
-# df = df.append(pd.DataFrame(res), ignore_index=True)
-# x = torch.rand((17280, 3, 64, 64), dtype=torch.float32)
-# y_flattened = x.flatten()
-# y_reshaped = y_flattened.reshape(x.shape)
-# print(torch.equal(x, y_reshaped))
-# plot_patches(patches)
+        count += 1
+        torch.save(res, checkpoint_path)
 
-# config = MambaConfig(
-#     dim=64,
-#     depth=3,
-#     dt_rank=2,
-#     d_state=2,
-#     expand_factor=2,
-#     d_conv=3,
-#     dt_min=0.001,
-#     dt_max=0.1,
-#     dt_init="random",
-#     dt_scale=1.0,
-#     bias=False,
-#     conv_bias=True,
-#     pscan=True,
-# )
-#
-# device = "cuda"
-# mamba_model = Mamba(config).to(device)
-# output_patches_list = []
-# scaler = torch.cuda.amp.GradScaler()
-# with torch.cuda.amp.autocast():
-#     for i in range(64):
-#         output_patch = mamba_model(patches[i])
-#         output_patch = output_patch.unsqueeze(0)
-#         output_patches_list.append(output_patch)
+torch.save(res, "checkpoint.pt")

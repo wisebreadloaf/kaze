@@ -342,7 +342,7 @@ class MambaBlock(nn.Module):
 
         y = (hs @ C.unsqueeze(-1)).squeeze(
             3
-        )  # (B, L, ED, N) @ (B, L, N, 1) -> (B, L, ED, 1)
+        )  # (B, L, ED, N) @ (B, L, N, 1) -> (B, L, ED, 1)
 
         y = y + D * x
 
@@ -381,7 +381,7 @@ class MambaBlock(nn.Module):
 
         y = (hs @ C.unsqueeze(-1)).squeeze(
             3
-        )  # (B, L, ED, N) @ (B, L, N, 1) -> (B, L, ED, 1)
+        )  # (B, L, ED, N) @ (B, L, N, 1) -> (B, L, ED, 1)
 
         y = y + D * x
 
@@ -453,7 +453,7 @@ class MambaBlock(nn.Module):
 
         A = -torch.exp(
             self.A_log.float()
-        )  # (ED, N) # todo : ne pas le faire tout le temps, puisque c'est indépendant de la timestep
+        )  # (ED, N) # todo : ne pas le faire tout le temps, puisque c'est indépendant de la timestep
         D = self.D.float()
         # TODO remove .float()
 
@@ -485,7 +485,7 @@ class MambaBlock(nn.Module):
 
         h = deltaA * h + BX  # (B, ED, N)
 
-        y = (h @ C.unsqueeze(-1)).squeeze(2)  # (B, ED, N) @ (B, N, 1) -> (B, ED, 1)
+        y = (h @ C.unsqueeze(-1)).squeeze(2)  # (B, ED, N) @ (B, N, 1) -> (B, ED, 1)
 
         y = y + D * x
 

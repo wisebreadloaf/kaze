@@ -19,9 +19,9 @@ checkpoint_path = "checkpoint.pt"
 latent_tensor = torch.load(checkpoint_path)
 print(latent_tensor.shape)
 print("latent vector loaded")
-print(latent_tensor.size(1) * latent_tensor.size(2) * latent_tensor.size(3))
+print(latent_tensor.shape)
 config = MambaConfig(
-    dim=latent_tensor.size(1) * latent_tensor.size(2) * latent_tensor.size(3),
+    dim=256,
     depth=3,
     dt_rank=2,
     d_state=2,
@@ -38,6 +38,7 @@ config = MambaConfig(
 
 print("model config defined")
 model = Mamba(config)
+model = model.to("cuda")
 print("model loaded")
 criterion = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
@@ -47,28 +48,20 @@ batch_size = 32
 dataset = PatchDataset(latent_tensor)
 train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=0)
 
+num_epochs = 100
+batch_size = 32
+dataset = PatchDataset(latent_tensor)
+train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=0)
+
 for epoch in range(num_epochs):
     for inputs in train_loader:
+        inputs = inputs.to("cuda")
         optimizer.zero_grad()
-        B, C, H, W = inputs.size()
-        inputs = inputs.view(B, C * H * W)
-
-        caches = [
-            (
-                None,
-                torch.zeros(B, config.d_inner, config.d_conv - 1, device=inputs.device),
-            )
-            for _ in range(config.depth)
-        ]
-
-        loss = 0
-        for t in range(inputs.size(1)):
-            outputs, caches = model.step(inputs[:, t], caches)
-            loss += criterion(outputs, inputs[:, t])
-
+        outputs = model(inputs)
+        loss = criterion(outputs, inputs)
         loss.backward()
         optimizer.step()
 
-    print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item() / inputs.size(1)}")
+    print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item()}")
 
 torch.save(model.state_dict(), "model_checkpoint.pth")
