@@ -1,3 +1,9 @@
 /videoprocessing
 /__pycache__/
 /.ipynb_checkpoints
+/models/
+/autoencoder/out_data/
+/autoencoder/raw_data/
+/autoencoder/models/
+/mambabyte/__pycache__/
+/autoencoder/__pycache__/

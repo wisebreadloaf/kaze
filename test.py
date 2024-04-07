@@ -52,14 +52,14 @@ config = MambaConfig(
 )
 mamba_model = Mamba(config)
 
-mamba_model.load_state_dict(torch.load("model_checkpoint.pth"))
+mamba_model.load_state_dict(torch.load("./models/model_checkpoint.pth"))
 
 mamba_model = mamba_model.to("cuda")
 count = 0
 for i in range(1, 5):
     if i == 1:
         image_path = os.path.join(
-            "./videoprocessing/images/", f"Arrietty_frame_{479:08d}.jpg"
+            "./videoprocessing/images/", f"Arrietty_frame_{3207:08d}.jpg"
         )
         print("processing", image_path)
         input_image = Image.open(image_path)

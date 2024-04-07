@@ -15,11 +15,6 @@ class PatchDataset(Dataset):
         return self.tensor[idx]
 
 
-checkpoint_path = "checkpoint.pt"
-latent_tensor = torch.load(checkpoint_path)
-print(latent_tensor.shape)
-print("latent vector loaded")
-print(latent_tensor.shape)
 config = MambaConfig(
     dim=256,
     depth=3,
@@ -40,28 +35,32 @@ print("model config defined")
 model = Mamba(config)
 model = model.to("cuda")
 print("model loaded")
-criterion = nn.MSELoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-num_epochs = 100
-batch_size = 32
-dataset = PatchDataset(latent_tensor)
-train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=0)
+for i in range(1, 4):
+    checkpoint_path = f"./autoencoder/out_data/checkpoint_{i}.pt"
+    latent_tensor = torch.load(checkpoint_path)
+    print(latent_tensor.shape)
+    print("latent vector loaded")
+    print(latent_tensor.shape)
+    criterion = nn.MSELoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-num_epochs = 100
-batch_size = 32
-dataset = PatchDataset(latent_tensor)
-train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=0)
+    num_epochs = 100
+    batch_size = 64
+    dataset = PatchDataset(latent_tensor)
+    train_loader = DataLoader(
+        dataset, batch_size=batch_size, shuffle=False, num_workers=0
+    )
 
-for epoch in range(num_epochs):
-    for inputs in train_loader:
-        inputs = inputs.to("cuda")
-        optimizer.zero_grad()
-        outputs = model(inputs)
-        loss = criterion(outputs, inputs)
-        loss.backward()
-        optimizer.step()
+    for epoch in range(num_epochs):
+        for inputs in train_loader:
+            inputs = inputs.to("cuda")
+            optimizer.zero_grad()
+            outputs = model(inputs)
+            loss = criterion(outputs, inputs)
+            loss.backward()
+            optimizer.step()
 
-    print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item()}")
+        print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item()}")
 
-torch.save(model.state_dict(), "model_checkpoint.pth")
+    torch.save(model.state_dict(), "./models/model_checkpoint.pth")
